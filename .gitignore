@@ -1,0 +1,12 @@
+Library/
+ProjectSettings/
+Temp/
+UserSettings/
+.vscode/
+
+*.csproj
+*.log
+*.meta
+*.sln
+
+packages-lock.json
