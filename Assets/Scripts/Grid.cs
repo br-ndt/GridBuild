@@ -1,68 +1,135 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Grid 
+public class Grid<TGridObject>
 {
-    public const int HEAP_MAP_MAX_VALUE = 100;
-    public const int HEAP_MAP_MIN_VALUE = 0;
+
+    [SerializeField] Color debugColor;
+
     private int width;
     private int height;
     private float cellSize;
     private Vector3 originPosition;
-    private int[,] gridArray;
+    private TGridObject[,] gridArray;
     private TextMesh[,] debugTextArray;
+    bool gridDebug;
+    bool textDebug;
 
-    public Grid(int width, int height, float cellSize, Vector3 originPosition)
+    public Grid(int width, int height, float cellSize, Vector3 originPosition, Func<Grid<TGridObject>, int, int, TGridObject> createGridObjectFunc, bool gridDebug, bool textDebug, Color debugColor)
     {
         this.width = width;
         this.height = height;
         this.cellSize = cellSize;
         this.originPosition = originPosition;
+        GridEventManager.OnGridObjectChanged += GridObjectChanged;
 
-        gridArray = new int[width, height];
+        gridArray = new TGridObject[width, height];
         debugTextArray = new TextMesh[width, height];
-        
-        for(int x=0; x<gridArray.GetLength(0); ++x)
+
+        for(int x = 0; x < gridArray.GetLength(0); ++x)
         {
-            for(int y=0; y<gridArray.GetLength(1); ++y)
+            for(int y = 0; y < gridArray.GetLength(1); ++y)
             {
-                debugTextArray[x, y] = TextUtils.CreateWorldText(gridArray[x, y].ToString(), null, GetWorldPosition(x, y) + new Vector3(cellSize/2, cellSize/2, 0), 35, Color.white, TextAnchor.MiddleCenter);
-                Debug.DrawLine(GetWorldPosition(x, y), GetWorldPosition(x, y + 1), Color.white, 100f);
-                Debug.DrawLine(GetWorldPosition(x, y), GetWorldPosition(x + 1, y), Color.white, 100f);
+                gridArray[x, y] = createGridObjectFunc(this, x, y);
             }
         }
-        Debug.DrawLine(GetWorldPosition(0, height), GetWorldPosition(width, height), Color.white, 100f);
-        Debug.DrawLine(GetWorldPosition(width, 0), GetWorldPosition(width, height), Color.white, 100f);
+        
+        this.gridDebug = gridDebug;
+        this.textDebug = textDebug;
+        bool showDebug = (this.gridDebug || this.textDebug);
+        if(showDebug)
+        {
+            for(int x = 0; x < gridArray.GetLength(0); ++x)
+            {
+                for(int y = 0; y < gridArray.GetLength(1); ++y)
+                {
+                    if(textDebug)
+                    {
+                        debugTextArray[x, y] = TextUtils.CreateWorldText(gridArray[x, y]?.ToString(), null, GetWorldPosition(x, y) + new Vector3(cellSize/2, cellSize/2, 0), 8, debugColor, TextAnchor.MiddleCenter);
+                        debugTextArray[x, y].characterSize = 0.5f;
+                    }
+                    if(gridDebug)
+                    {
+                        Debug.DrawLine(GetWorldPosition(x, y), GetWorldPosition(x, y + 1), debugColor, 100f);
+                        Debug.DrawLine(GetWorldPosition(x, y), GetWorldPosition(x + 1, y), debugColor, 100f);
+
+                    }
+                }
+            }
+            if(gridDebug)
+            {
+                Debug.DrawLine(GetWorldPosition(0, height), GetWorldPosition(width, height), debugColor, 100f);
+                Debug.DrawLine(GetWorldPosition(width, 0), GetWorldPosition(width, height), debugColor, 100f);
+            }
+
+        }
     }
 
-    private Vector3 GetWorldPosition(int x, int y)
+    public Vector3 GetWorldPosition(int x, int y)
     {
         return new Vector3(x, y) * cellSize + originPosition;
     }
 
-    private void GetXY(Vector3 worldPosition, out int x, out int y)
+    public void GetXY(Vector3 worldPosition, out int x, out int y)
     {
         x = Mathf.FloorToInt((worldPosition - originPosition).x / cellSize);
         y = Mathf.FloorToInt((worldPosition - originPosition).y / cellSize);
     }
 
-    public void SetValue(int x, int y, int value)
+    public Vector3 GetXY(Vector3 worldPosition)
     {
-        if(x >= 0 && y >= 0 && x < width && y < height)
-            gridArray[x, y] = Mathf.Clamp(value, HEAP_MAP_MIN_VALUE, HEAP_MAP_MAX_VALUE);
-            debugTextArray[x, y].text = gridArray[x, y].ToString();
+        int x = Mathf.FloorToInt((worldPosition - originPosition).x / cellSize);
+        int y = Mathf.FloorToInt((worldPosition - originPosition).y / cellSize);
+        return new Vector3(x, y, 0);
     }
 
-    public void SetValue(Vector3 worldPosition, int value)
+    public int GetWidth()
+    {
+        return this.width;
+    }
+
+    public int GetHeight()
+    {
+        return this.height;
+    }
+
+    public float GetCellSize()
+    {
+        return this.cellSize;
+    }
+
+    public void SetObject(int x, int y, TGridObject obj)
+    {
+        if(x >= 0 && y >= 0 && x < width && y < height)
+        {
+            gridArray[x, y] = obj;
+            if(textDebug)
+                debugTextArray[x, y].text = gridArray[x, y].ToString();
+        }
+            
+    }
+
+    public void GridObjectChanged(object sender, int x, int y)
+    {
+        if(textDebug)
+        {
+            debugTextArray[x, y].text = gridArray[x, y].ToString();
+            if(GetObject(x, y) != null) debugTextArray[x, y].color = Color.blue;
+            else debugTextArray[x, y].color = debugColor;
+        }        
+    }
+
+    public void SetObject(Vector3 worldPosition, TGridObject obj)
     {
         int x, y;
         GetXY(worldPosition, out x, out y);
-        SetValue(x, y, value);
+        SetObject(x, y, obj);
     }
 
-    public int GetValue(int x, int y)
+    public TGridObject GetObject(int x, int y)
     {
         if(x >= 0 && y >= 0 && x < width && y < height)
         {
@@ -70,15 +137,14 @@ public class Grid
         }
         else
         {
-            //invalid value
-            return -1;
+            return default(TGridObject);
         }
     }
 
-    public int GetValue(Vector3 worldPosition)
+    public TGridObject GetObject(Vector3 worldPosition)
     {
         int x, y;
         GetXY(worldPosition, out x, out y);
-        return GetValue(x, y);
+        return GetObject(x, y);
     }
 }

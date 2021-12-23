@@ -1,3 +1,5 @@
+Assets/Scripts/Tests
+Assets/TextMesh Pro
 Library/
 obj/
 ProjectSettings/
@@ -5,6 +7,7 @@ Temp/
 UserSettings/
 .vscode/
 
+*.aseprite
 *.csproj
 *.log
 *.meta
