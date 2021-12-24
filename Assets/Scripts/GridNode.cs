@@ -2,76 +2,135 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GridObject
+public class GridNode
 {
-    private Grid<GridObject> grid;
-    private int x;
-    private int y;
-    private Transform transformHere;
-    private PathNode node;
+    #region Fields/Properties
+    private Grid<GridNode> grid;
+    
+    public int x 
+    {
+        get;
+        private set;
+    }
+    public int y
+    {
+        get;
+        private set;
+    }
+    public int gCost;
+    public int hCost;
+    public int fCost;
+    public bool isWalkable
+    {
+        get;
+        private set;
+    }
+    private Transform groundTransform;
+    private Transform placedTransform;
+    private Transform ceilingTransform;
+    public List<GridNode> neighbors;
+    public GridNode prevNode;
+    #endregion
 
-    public GridObject(Grid<GridObject> grid, int x, int y)
+    #region Constructor
+    public GridNode(Grid<GridNode> grid, int x, int y)
     {
         this.grid = grid;
         this.x = x;
         this.y = y;
+        isWalkable = true;
+    }
+    #endregion
+
+    #region Getters
+    public Grid<GridNode> GetGrid()
+    {
+        return grid;
     }
 
     public Transform GetTransform()
     {
-        return transformHere;
+        return placedTransform;
+    }
+
+    public Transform GetTransform(string layer = "")
+    {
+        switch(layer)
+        {
+            case "ground":
+                return groundTransform;
+            case "ceiling":
+                return ceilingTransform;
+            case "placed":
+            default:
+                return GetTransform();
+        }
+    }
+
+    public override string ToString()
+    {
+        return x + ", " + y + "\n";
+    }
+    #endregion
+
+    #region Pathfinding
+    public void CalculateFCost()
+    {
+        fCost = gCost + hCost;
+    }
+
+    public void SetIsWalkable(bool value)
+    {
+        isWalkable = value;
+    }
+    #endregion
+
+    #region Building
+    public bool CanBuild()
+    {
+        return placedTransform == null;
     }
 
     public void SetTransform(Transform transform)
     {
-        this.transformHere = transform;
+        placedTransform = transform;
         GridEventManager.GridObjectChanged(this, x, y);
-    }
-
-    public void ClearTransform()
-    {
-        transformHere = null;
-    }
-
-    public bool CanBuild()
-    {
-        return transformHere == null;
     }
 
     public int GetNeighborIndex()
     {
         bool east = false, west = false, north = false, south = false;
         
-        GridObject testObj;
-        testObj = grid.GetObject(x + 1, y);
-        if(testObj != null)
+        GridNode checkNode;
+        checkNode = grid.GetGridObject(x + 1, y);
+        if(checkNode != null)
         {
-            if(testObj.GetTransform() != null)
+            if(checkNode.GetTransform() != null)
             // check for matching "tile" type
                 east = true;
         }
-        testObj = grid.GetObject(x - 1, y);
-        if(testObj != null)
+        checkNode = grid.GetGridObject(x - 1, y);
+        if(checkNode != null)
         {
-            if(testObj.GetTransform() != null)
+            if(checkNode.GetTransform() != null)
             // check for matching "tile" type
                 west = true;
         }
-        testObj = grid.GetObject(x, y + 1);
-        if(testObj != null)
+        checkNode = grid.GetGridObject(x, y + 1);
+        if(checkNode != null)
         {
-            if(testObj.GetTransform() != null)
+            if(checkNode.GetTransform() != null)
             // check for matching "tile" type
                 north = true;
         }
-        testObj = grid.GetObject(x, y - 1);
-        if(testObj != null)
+        checkNode = grid.GetGridObject(x, y - 1);
+        if(checkNode != null)
         {
-            if(testObj.GetTransform() != null)
+            if(checkNode.GetTransform() != null)
             // check for matching "tile" type
                 south = true;
         }
-        
+    
         if(east)
         {
             if(west) // ─ ─ ─
@@ -140,9 +199,5 @@ public class GridObject
         //no neighbors
         return 0;
     }
-
-    public override string ToString()
-    {
-        return x + ", " + y + "\n";
-    }
+    #endregion
 }

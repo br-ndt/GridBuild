@@ -7,7 +7,7 @@ public class PlacedObject : MonoBehaviour
     [SerializeField] SpriteRenderer spriteRenderer;
     PlacedObjectScriptableObject objectData;
 
-    Grid<GridObject> grid;
+    Grid<GridNode> grid;
 
     int x;
     int y;
@@ -26,10 +26,10 @@ public class PlacedObject : MonoBehaviour
 
     public void UpdateSprite()
     {
-        spriteRenderer.sprite = objectData.sprites[grid.GetObject(x, y).GetNeighborIndex()];
+        spriteRenderer.sprite = objectData.sprites[grid.GetGridObject(x, y).GetNeighborIndex()];
     }
 
-    public void Initialize(Grid<GridObject> grid, PlacedObjectScriptableObject SO, int x, int y)
+    public void Initialize(Grid<GridNode> grid, PlacedObjectScriptableObject SO, int x, int y)
     {
         this.x = x;
         this.y = y;
