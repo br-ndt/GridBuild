@@ -86,7 +86,7 @@ public class GridNode
     #endregion
 
     #region Building
-    public bool CanBuild()
+    public bool PlacementAvailable()
     {
         return placedTransform == null;
     }

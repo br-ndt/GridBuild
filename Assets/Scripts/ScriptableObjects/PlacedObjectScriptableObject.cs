@@ -1,22 +1,12 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu()]
 public class PlacedObjectScriptableObject : ScriptableObject
 {
-    public static Dir GetNextDir(Dir dir)
-    {
-        switch(dir)
-        {
-            default:
-            case Dir.South: return Dir.West;
-            case Dir.West: return Dir.North;
-            case Dir.North: return Dir.East;
-            case Dir.East: return Dir.South;
-        }
-    }
-
+    #region Fields/Properties
     public enum Dir
     {
         North,
@@ -30,11 +20,30 @@ public class PlacedObjectScriptableObject : ScriptableObject
     public Transform visual;
 
     public Sprite[] sprites;
+    public Sprite constructionSprite;
     public int width;
     public int height;
     
     public bool lockRotate;
+    public bool hasBuildCost;
+    public int minimumSkill;
+    public int laborCost;
 
+    public List<ResourceCost> ResourceCosts = new List<ResourceCost>();
+    #endregion
+
+    #region Methods    
+    public static Dir GetNextDir(Dir dir)
+    {
+        switch(dir)
+        {
+            default:
+            case Dir.South: return Dir.West;
+            case Dir.West: return Dir.North;
+            case Dir.North: return Dir.East;
+            case Dir.East: return Dir.South;
+        }
+    }
     public int GetRotationAngle(Dir dir)
     {
         if(!lockRotate)
@@ -111,4 +120,5 @@ public class PlacedObjectScriptableObject : ScriptableObject
         }
         return gridPositionList;
     }
+    #endregion
 }

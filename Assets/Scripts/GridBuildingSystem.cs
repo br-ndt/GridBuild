@@ -8,10 +8,14 @@ public class GridBuildingSystem : MonoBehaviour
     private PlacedObjectScriptableObject placedObject;
     private Grid<GridNode> grid;
     private PlacedObjectScriptableObject.Dir dir = PlacedObjectScriptableObject.Dir.South;
+    [SerializeField] ResourceScriptableObject testResource;
 
     private void Awake()
     {
         placedObject = placedObjectList[0];
+        InputEventManager.OnLeftClick += Input_TryPlace;
+        InputEventManager.OnRightClick += InputTest_ResourceUpdate;
+        InputEventManager.OnRotateKey += Input_RotateObject;
     }
 
     public void Initialize(Grid<GridNode> grid)
@@ -19,27 +23,32 @@ public class GridBuildingSystem : MonoBehaviour
         this.grid = grid;
     }
 
-    private void Update()
+    private void Input_RotateObject()
     {
-        if(Input.GetMouseButtonDown(0) && grid != null)
+        dir = PlacedObjectScriptableObject.GetNextDir(dir);
+    }
+
+    private void Input_TryPlace(Vector3 position)
+    {
+        if(grid != null)
         {
-            grid.GetXY(MouseUtils.GetMouseWorldPosition(), out int x, out int y);
+            grid.GetXY(position, out int x, out int y);
             if(x >= 0 && y >= 0)
             {
                 
                 List<Vector2Int> gridPositionList = placedObject.GetGridPositionList(new Vector2Int(x, y), dir);
 
-                bool canBuild = true;
+                bool canPlace = true;
                 foreach(Vector2Int gridPosition in gridPositionList)
                 {
-                    if(!grid.GetGridObject(gridPosition.x, gridPosition.y).CanBuild())
+                    if(!grid.GetGridObject(gridPosition.x, gridPosition.y).PlacementAvailable())
                     {
-                        canBuild = false;
+                        canPlace = false;
                         break;
                     }
                 }
 
-                if(canBuild)
+                if(canPlace)
                 {
                     Vector2Int rotationOffset = placedObject.GetRotationOffset(dir);
                     Vector3 placedObjectWorldPosition = grid.GetWorldPosition(x, y) + 
@@ -51,11 +60,12 @@ public class GridBuildingSystem : MonoBehaviour
                             grid.GetWorldPosition(x, y),
                             Quaternion.Euler(0, 0, placedObject.GetRotationAngle(dir))
                         ).transform;
-                    builtTransform.GetComponent<PlacedObject>().Initialize(grid, placedObject, x, y);
+                    builtTransform.GetComponent<PlacedObject>().Initialize(grid, placedObject, x, y, out bool isBuilt);
                     foreach(Vector2Int gridPosition in gridPositionList)
                     {
                         grid.GetGridObject(gridPosition.x, gridPosition.y).SetTransform(builtTransform);
-                        grid.GetGridObject(gridPosition.x, gridPosition.y).SetIsWalkable(false);
+                        if(isBuilt)
+                            grid.GetGridObject(gridPosition.x, gridPosition.y).SetIsWalkable(false);
                     }
                 }
                 else
@@ -64,12 +74,23 @@ public class GridBuildingSystem : MonoBehaviour
                 }
             }
         }
+    }
 
-        if(Input.GetKeyDown(KeyCode.R))
+    private void InputTest_ResourceUpdate(Vector3 position)
+    {
+        Transform thing = grid.GetGridObject(position).GetTransform();
+        if(thing != null)
         {
-            dir = PlacedObjectScriptableObject.GetNextDir(dir);
-        }
-
+            PlacedObject placo = thing.GetComponent<PlacedObject>();
+            if(placo != null)
+            {
+                placo.UpdateResource(testResource, 100);
+            }
+        }        
+    }
+    private void Update()
+    {
+        //TESTING
         if(Input.GetKeyDown(KeyCode.Alpha1)){ placedObject = placedObjectList[0]; }
         if(Input.GetKeyDown(KeyCode.Alpha2)){ placedObject = placedObjectList[1]; }
         if(Input.GetKeyDown(KeyCode.Alpha3)){ placedObject = placedObjectList[2]; }

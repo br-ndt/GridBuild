@@ -40,6 +40,14 @@ MonoBehaviour:
   - {fileID: 4541951875116851759, guid: 89729ed4d4910104d8e5428823e71472, type: 3}
   - {fileID: 2552610381843497390, guid: 89729ed4d4910104d8e5428823e71472, type: 3}
   - {fileID: -9187039844790654446, guid: 89729ed4d4910104d8e5428823e71472, type: 3}
+  constructionSprite: {fileID: 21300000, guid: 62186492e419f194595b700b2678d400, type: 3}
   width: 1
   height: 1
   lockRotate: 1
+  hasBuildCost: 1
+  minimumSkill: 2
+  laborCost: 10
+  ResourceCosts:
+  - resource: {fileID: 11400000, guid: fcd7b15d902e85b4bb73144eef6a4be6, type: 2}
+    neededCount: 10
+    investedCount: 3200

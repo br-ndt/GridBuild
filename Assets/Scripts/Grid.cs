@@ -14,15 +14,17 @@ public class Grid<TGridObject>
     private Vector3 originPosition;
     private TGridObject[,] gridArray;
     private TextMesh[,] debugTextArray;
+    private Transform debug;
     bool gridDebug;
     bool textDebug;
 
-    public Grid(int width, int height, float cellSize, Vector3 originPosition, Func<Grid<TGridObject>, int, int, TGridObject> createGridObjectFunc, bool gridDebug, bool textDebug, Color debugColor)
+    public Grid(int width, int height, float cellSize, Vector3 originPosition, Func<Grid<TGridObject>, int, int, TGridObject> createGridObjectFunc, Transform debug, bool gridDebug, bool textDebug, Color debugColor)
     {
         this.width = width;
         this.height = height;
         this.cellSize = cellSize;
         this.originPosition = originPosition;
+        this.debug = debug;
         this.debugColor = debugColor;
         GridEventManager.OnGridObjectChanged += Grid_GridObjectChanged;
 
@@ -87,7 +89,7 @@ public class Grid<TGridObject>
             
     }*/
 
-    public void Grid_GridObjectChanged(object sender, int x, int y)
+    public void Grid_GridObjectChanged(int x, int y)
     {
         if(textDebug)
         {
@@ -132,7 +134,7 @@ public class Grid<TGridObject>
                 if(text)
                 {                        
                     debugTextArray = new TextMesh[width, height];
-                    debugTextArray[x, y] = TextUtils.CreateWorldText(gridArray[x, y]?.ToString(), null, GetWorldPosition(x, y) + new Vector3(cellSize/2, cellSize/2, 0), 8, debugColor, TextAnchor.MiddleCenter);
+                    debugTextArray[x, y] = TextUtils.CreateWorldText(gridArray[x, y]?.ToString(), debug, GetWorldPosition(x, y) + new Vector3(cellSize/2, cellSize/2, -1), 8, debugColor, TextAnchor.MiddleCenter);
                     debugTextArray[x, y].characterSize = 0.5f;
                 }
                 if(grid)
