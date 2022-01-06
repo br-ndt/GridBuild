@@ -50,4 +50,4 @@ MonoBehaviour:
   ResourceCosts:
   - resource: {fileID: 11400000, guid: fcd7b15d902e85b4bb73144eef6a4be6, type: 2}
     neededCount: 10
-    investedCount: 3200
+    investedCount: 0

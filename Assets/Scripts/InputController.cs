@@ -25,9 +25,22 @@ public class InputController : MonoBehaviour
         }
     }
 
+    void HandleKeyboard()
+    {
+        if(Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            InputEventManager.NumKey(this, 0); // shift player input to be 1 -> 0 based
+        }
+        if(Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            InputEventManager.NumKey(this, 1);
+        }
+    }
+
     private void Update()
     {
         HandleMovement();
         HandleMouse();
+        HandleKeyboard();
     }
 }

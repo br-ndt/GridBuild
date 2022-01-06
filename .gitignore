@@ -1,9 +1,11 @@
 Assets/Scripts/Tests
 Assets/TextMesh Pro
 Library/
+Logs/
 obj/
 ProjectSettings/
 Temp/
+UIElementsSchema/
 UserSettings/
 .vscode/
 
@@ -12,5 +14,6 @@ UserSettings/
 *.log
 *.meta
 *.sln
+*.xsd
 
 packages-lock.json

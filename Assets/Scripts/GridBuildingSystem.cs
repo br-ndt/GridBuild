@@ -4,26 +4,48 @@ using UnityEngine;
 
 public class GridBuildingSystem : MonoBehaviour
 {
-    [SerializeField] private List<PlacedObjectScriptableObject> placedObjectList;
-    private PlacedObjectScriptableObject placedObject;
+    [SerializeField] private List<PlacedObjectScriptableObject> objectToPlaceList;
+    [SerializeField] private Transform placementGhost;
+    private SpriteRenderer ghostSpriteRenderer;
+    [SerializeField] private PlacedObjectScriptableObject objectToPlace;
     private Grid<GridNode> grid;
     private PlacedObjectScriptableObject.Dir dir = PlacedObjectScriptableObject.Dir.South;
     [SerializeField] ResourceScriptableObject testResource;
-
-    private void Awake()
-    {
-        placedObject = placedObjectList[0];
-        InputEventManager.OnLeftClick += Input_TryPlace;
-        InputEventManager.OnRightClick += InputTest_ResourceUpdate;
-        InputEventManager.OnRotateKey += Input_RotateObject;
-    }
+    Vector3 mousePos; //testing?
 
     public void Initialize(Grid<GridNode> grid)
     {
         this.grid = grid;
     }
 
-    private void Input_RotateObject()
+    private void Awake()
+    {
+        objectToPlace = objectToPlaceList[0];
+        ghostSpriteRenderer = placementGhost.GetComponent<SpriteRenderer>();
+        ghostSpriteRenderer.sprite = objectToPlace.sprites[0];
+        
+        InputEventManager.OnLeftClick += Input_TryPlace;
+        InputEventManager.OnRightClick += InputTest_ResourceUpdate;
+        InputEventManager.OnRotateKey += Input_RotateObjectToPlace;
+        InputEventManager.OnNumKey += Input_ChangeObjectToPlace;
+    }
+
+    private void Update()
+    {
+        mousePos = MouseUtils.GetMouseWorldPosition();
+        placementGhost.position = grid.GetXY(mousePos);
+    }
+
+    private void Input_ChangeObjectToPlace(int numkey)
+    {
+        if(numkey < objectToPlaceList.Count)
+        {
+            objectToPlace = objectToPlaceList[numkey];            
+            ghostSpriteRenderer.sprite = objectToPlace.sprites[0];
+        }
+    }
+
+    private void Input_RotateObjectToPlace()
     {
         dir = PlacedObjectScriptableObject.GetNextDir(dir);
     }
@@ -36,7 +58,7 @@ public class GridBuildingSystem : MonoBehaviour
             if(x >= 0 && y >= 0)
             {
                 
-                List<Vector2Int> gridPositionList = placedObject.GetGridPositionList(new Vector2Int(x, y), dir);
+                List<Vector2Int> gridPositionList = objectToPlace.GetGridPositionList(new Vector2Int(x, y), dir);
 
                 bool canPlace = true;
                 foreach(Vector2Int gridPosition in gridPositionList)
@@ -50,17 +72,17 @@ public class GridBuildingSystem : MonoBehaviour
 
                 if(canPlace)
                 {
-                    Vector2Int rotationOffset = placedObject.GetRotationOffset(dir);
-                    Vector3 placedObjectWorldPosition = grid.GetWorldPosition(x, y) + 
+                    Vector2Int rotationOffset = objectToPlace.GetRotationOffset(dir);
+                    Vector3 objectToPlaceWorldPosition = grid.GetWorldPosition(x, y) + 
                         new Vector3(rotationOffset.x, rotationOffset.y) * grid.GetCellSize();
 
                     Transform builtTransform =
                         Instantiate(
-                            placedObject.prefab,
+                            objectToPlace.prefab,
                             grid.GetWorldPosition(x, y),
-                            Quaternion.Euler(0, 0, placedObject.GetRotationAngle(dir))
+                            Quaternion.Euler(0, 0, objectToPlace.GetRotationAngle(dir))
                         ).transform;
-                    builtTransform.GetComponent<PlacedObject>().Initialize(grid, placedObject, x, y, out bool isBuilt);
+                    builtTransform.GetComponent<PlacedObject>().Initialize(grid, objectToPlace, x, y, out bool isBuilt);
                     foreach(Vector2Int gridPosition in gridPositionList)
                     {
                         grid.GetGridObject(gridPosition.x, gridPosition.y).SetTransform(builtTransform);
@@ -87,12 +109,5 @@ public class GridBuildingSystem : MonoBehaviour
                 placo.UpdateResource(testResource, 100);
             }
         }        
-    }
-    private void Update()
-    {
-        //TESTING
-        if(Input.GetKeyDown(KeyCode.Alpha1)){ placedObject = placedObjectList[0]; }
-        if(Input.GetKeyDown(KeyCode.Alpha2)){ placedObject = placedObjectList[1]; }
-        if(Input.GetKeyDown(KeyCode.Alpha3)){ placedObject = placedObjectList[2]; }
     }
 }

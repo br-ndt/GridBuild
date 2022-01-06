@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 628998086e107d143bbb430b8e2ba755, type: 3}
+  m_Name: Wall_Wood
+  m_EditorClassIdentifier: 
+  nameString: Wood Wall
+  prefab: {fileID: 3604451326259086135, guid: 7d65ec5f2e521664ba90516fa7bc3bf5, type: 3}
+  visual: {fileID: 1181485246708693388, guid: ba18c86680195914aa1098cead5f607c, type: 3}
+  sprites:
+  - {fileID: -3436436229239914352, guid: ef4517da44cb5b44ca0fe2d74789e3f3, type: 3}
+  - {fileID: 1647050942368824789, guid: ef4517da44cb5b44ca0fe2d74789e3f3, type: 3}
+  - {fileID: 5367716801674415609, guid: ef4517da44cb5b44ca0fe2d74789e3f3, type: 3}
+  - {fileID: -2900427523026404268, guid: ef4517da44cb5b44ca0fe2d74789e3f3, type: 3}
+  - {fileID: -7140625420268096797, guid: ef4517da44cb5b44ca0fe2d74789e3f3, type: 3}
+  - {fileID: 9158210064394140413, guid: ef4517da44cb5b44ca0fe2d74789e3f3, type: 3}
+  - {fileID: -1742117493022119463, guid: ef4517da44cb5b44ca0fe2d74789e3f3, type: 3}
+  - {fileID: 4663015161555452206, guid: ef4517da44cb5b44ca0fe2d74789e3f3, type: 3}
+  - {fileID: -8357008100471360661, guid: ef4517da44cb5b44ca0fe2d74789e3f3, type: 3}
+  - {fileID: 6347523279892903190, guid: ef4517da44cb5b44ca0fe2d74789e3f3, type: 3}
+  - {fileID: 323224852144719935, guid: ef4517da44cb5b44ca0fe2d74789e3f3, type: 3}
+  - {fileID: -8276461800974132595, guid: ef4517da44cb5b44ca0fe2d74789e3f3, type: 3}
+  - {fileID: 2533974746451564407, guid: ef4517da44cb5b44ca0fe2d74789e3f3, type: 3}
+  - {fileID: 5988751908705767922, guid: ef4517da44cb5b44ca0fe2d74789e3f3, type: 3}
+  - {fileID: -7730190587708658881, guid: ef4517da44cb5b44ca0fe2d74789e3f3, type: 3}
+  - {fileID: -7066406170788852075, guid: ef4517da44cb5b44ca0fe2d74789e3f3, type: 3}
+  - {fileID: -3329674933285645476, guid: ef4517da44cb5b44ca0fe2d74789e3f3, type: 3}
+  - {fileID: -7889865023203716419, guid: ef4517da44cb5b44ca0fe2d74789e3f3, type: 3}
+  - {fileID: -1326263225320312307, guid: ef4517da44cb5b44ca0fe2d74789e3f3, type: 3}
+  - {fileID: -3338159969872836300, guid: ef4517da44cb5b44ca0fe2d74789e3f3, type: 3}
+  - {fileID: -2113030260015915096, guid: ef4517da44cb5b44ca0fe2d74789e3f3, type: 3}
+  - {fileID: 6351538909257173844, guid: ef4517da44cb5b44ca0fe2d74789e3f3, type: 3}
+  - {fileID: 6015038792790596415, guid: ef4517da44cb5b44ca0fe2d74789e3f3, type: 3}
+  - {fileID: -2107860072836854811, guid: ef4517da44cb5b44ca0fe2d74789e3f3, type: 3}
+  constructionSprite: {fileID: 21300000, guid: 62186492e419f194595b700b2678d400, type: 3}
+  width: 1
+  height: 1
+  lockRotate: 1
+  hasBuildCost: 1
+  minimumSkill: 1
+  laborCost: 5
+  ResourceCosts:
+  - resource: {fileID: 11400000, guid: 3aa2adf7e218c1143b40700b2e519322, type: 2}
+    neededCount: 10
+    investedCount: 0
