@@ -14,13 +14,13 @@ public class Pathfinding
     {
         _Instance = this;
         this.grid = grid;
-        for(int i = 0; i < width; ++i)
+        /*for(int i = 0; i < width; ++i)
         {
             for(int j = 0; j < height; ++j)
             {
                 grid.GetGridObject(i, j).neighbors = GetNeighborList(grid.GetGridObject(i, j));
             }
-        }
+        }*/
     }
 
     public List<Vector3> FindPath(Vector3 startPosition, Vector3 endPosition)
@@ -102,35 +102,6 @@ public class Pathfinding
 
         // Out of nodes in openList
         return null;
-    }
-
-    private List<GridNode> GetNeighborList(GridNode curNode)
-    {
-        List<GridNode> neighborList = new List<GridNode>();
-        if(curNode.x - 1 >= 0)
-        {
-            //LEFT
-            neighborList.Add(grid.GetGridObject(curNode.x - 1, curNode.y));
-            //LEFTDOWN
-            if(curNode.y - 1 >= 0) neighborList.Add(grid.GetGridObject(curNode.x - 1, curNode.y - 1));
-            //LEFTUP
-            if(curNode.y + 1 < grid.GetHeight()) neighborList.Add(grid.GetGridObject(curNode.x - 1, curNode.y + 1));
-        }
-        if(curNode.x + 1 < grid.GetWidth())
-        {
-            //RIGHT
-            neighborList.Add(grid.GetGridObject(curNode.x + 1, curNode.y));
-            //RIGHTDOWN
-            if(curNode.y - 1 >= 0) neighborList.Add(grid.GetGridObject(curNode.x + 1, curNode.y - 1));
-            //RIGHTUP
-            if(curNode.y + 1 < grid.GetHeight()) neighborList.Add(grid.GetGridObject(curNode.x + 1, curNode.y + 1));
-        }
-        //DOWN
-        if(curNode.y - 1 >= 0) neighborList.Add(grid.GetGridObject(curNode.x, curNode.y - 1));
-        //UP
-        if(curNode.y + 1 < grid.GetHeight()) neighborList.Add(grid.GetGridObject(curNode.x, curNode.y + 1));
-
-        return neighborList;
     }
 
     private List<GridNode> CalculatePath(GridNode endNode)

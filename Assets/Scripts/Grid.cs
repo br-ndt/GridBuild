@@ -18,7 +18,7 @@ public class Grid<TGridObject>
     bool gridDebug;
     bool textDebug;
 
-    public Grid(int width, int height, float cellSize, Vector3 originPosition, Func<Grid<TGridObject>, int, int, TGridObject> createGridObjectFunc, Transform debug, bool gridDebug, bool textDebug, Color debugColor)
+    public Grid(int width, int height, float cellSize, Vector3 originPosition, Func<Grid<TGridObject>, int, int, TGridObject> createGridObjectFunc, Func<TGridObject, bool> initializeGridObjectFunc, Transform debug, bool gridDebug, bool textDebug, Color debugColor)
     {
         this.width = width;
         this.height = height;
@@ -37,6 +37,16 @@ public class Grid<TGridObject>
                 gridArray[x, y] = createGridObjectFunc(this, x, y);
             }
         }
+
+        for(int x = 0; x < width; ++x)
+        {
+            for(int y = 0; y < height; ++y)
+            {
+                initializeGridObjectFunc(gridArray[x,y]);
+            }
+        }
+
+        GridEventManager.GridComplete(this);
 
         if(gridDebug || textDebug)
         {
@@ -89,7 +99,7 @@ public class Grid<TGridObject>
             
     }*/
 
-    public void Grid_GridObjectChanged(int x, int y)
+    public void Grid_GridObjectChanged(object sender, int x, int y)
     {
         if(textDebug)
         {

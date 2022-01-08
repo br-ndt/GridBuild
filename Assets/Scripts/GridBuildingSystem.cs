@@ -12,6 +12,7 @@ public class GridBuildingSystem : MonoBehaviour
     private PlacedObjectScriptableObject.Dir dir = PlacedObjectScriptableObject.Dir.South;
     [SerializeField] ResourceScriptableObject testResource;
     Vector3 mousePos; //testing?
+    List<ResourceCost> resourceCosts;
 
     public void Initialize(Grid<GridNode> grid)
     {
@@ -25,7 +26,7 @@ public class GridBuildingSystem : MonoBehaviour
         ghostSpriteRenderer.sprite = objectToPlace.sprites[0];
         
         InputEventManager.OnLeftClick += Input_TryPlace;
-        InputEventManager.OnRightClick += InputTest_ResourceUpdate;
+        //InputEventManager.OnRightClick += InputTest_ResourceUpdate;
         InputEventManager.OnRotateKey += Input_RotateObjectToPlace;
         InputEventManager.OnNumKey += Input_ChangeObjectToPlace;
     }
@@ -42,6 +43,7 @@ public class GridBuildingSystem : MonoBehaviour
         {
             objectToPlace = objectToPlaceList[numkey];            
             ghostSpriteRenderer.sprite = objectToPlace.sprites[0];
+            resourceCosts = objectToPlace.ResourceCosts;
         }
     }
 
@@ -75,19 +77,29 @@ public class GridBuildingSystem : MonoBehaviour
                     Vector2Int rotationOffset = objectToPlace.GetRotationOffset(dir);
                     Vector3 objectToPlaceWorldPosition = grid.GetWorldPosition(x, y) + 
                         new Vector3(rotationOffset.x, rotationOffset.y) * grid.GetCellSize();
+                    
+                    List<GridNode> gridNodes = new List<GridNode>();
+                    foreach(Vector2Int gridPosition in gridPositionList)
+                    {
+                        gridNodes.Add(grid.GetGridObject(gridPosition.x, gridPosition.y));
+                    }
 
                     Transform builtTransform =
                         Instantiate(
                             objectToPlace.prefab,
-                            grid.GetWorldPosition(x, y),
+                            objectToPlaceWorldPosition,
                             Quaternion.Euler(0, 0, objectToPlace.GetRotationAngle(dir))
                         ).transform;
-                    builtTransform.GetComponent<PlacedObject>().Initialize(grid, objectToPlace, x, y, out bool isBuilt);
-                    foreach(Vector2Int gridPosition in gridPositionList)
+                    PlacedObject placedObject = builtTransform.GetComponent<PlacedObject>();
+                    placedObject.Initialize(gridNodes, objectToPlace, x, y);
+                    
+                    IJob thisJob = new Job_Build(placedObject, resourceCosts);
+                    JobEventManager.AddJob(this, thisJob);
+
+                    foreach(GridNode gridNode in gridNodes)
                     {
-                        grid.GetGridObject(gridPosition.x, gridPosition.y).SetTransform(builtTransform);
-                        if(isBuilt)
-                            grid.GetGridObject(gridPosition.x, gridPosition.y).SetIsWalkable(false);
+                        gridNode.SetTransform(builtTransform);
+                        gridNode.SetIsWalkable(objectToPlace.hasBuildCost && objectToPlace.ResourceCosts.Count > 0 ? true : false);
                     }
                 }
                 else
@@ -96,18 +108,5 @@ public class GridBuildingSystem : MonoBehaviour
                 }
             }
         }
-    }
-
-    private void InputTest_ResourceUpdate(Vector3 position)
-    {
-        Transform thing = grid.GetGridObject(position).GetTransform();
-        if(thing != null)
-        {
-            PlacedObject placo = thing.GetComponent<PlacedObject>();
-            if(placo != null)
-            {
-                placo.UpdateResource(testResource, 100);
-            }
-        }        
     }
 }

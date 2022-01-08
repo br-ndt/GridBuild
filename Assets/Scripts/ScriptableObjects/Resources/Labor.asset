@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a998dd09b8f43804db1929676690ab26, type: 3}
-  m_Name: Seconds
+  m_Name: Labor
   m_EditorClassIdentifier: 
-  resourceName: Seconds
+  resourceName: Labor
   sprite: {fileID: 21300000, guid: d61ee247902bcdf4ba114d83d06c876f, type: 3}

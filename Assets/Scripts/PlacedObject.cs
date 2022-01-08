@@ -7,64 +7,33 @@ public class PlacedObject : MonoBehaviour
     [SerializeField] SpriteRenderer spriteRenderer;
     PlacedObjectScriptableObject objectData;
 
-    Grid<GridNode> grid;
-
-    int x;
-    int y;
-
     [SerializeField]
     bool isBuilt = false;
     bool hasResources = false;
-    List<ResourceCost> resourceCosts;
-
-    private bool AssessPreBuiltStatus()
-    {        
-        if(!objectData.hasBuildCost)
-        {
-            hasResources = true;
-            resourceCosts = null;
-            return true;
-        }
-        else
-        {
-            resourceCosts = objectData.ResourceCosts;
-            return false;
-        }
-    }
-    private void AssessResourceStatus()
-    {
-        foreach(ResourceCost r in resourceCosts)
-        {
-            if(r.investedCount < r.neededCount && r.resource.resourceName != "Seconds")
-            {
-                hasResources = false;
-                return;
-            }
-        }
-        hasResources = true;
-        UpdatePositionalSprite();
-        UpdateSpriteOpacity();
-    }
+    Job_Build thisJob;
+    List<GridNode> nodes;
+    
     private void Awake()
     {
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();  
     }    
-    private void Grid_OnGridValueChanged(int x, int y)
-    {
-        if(this.x >= x - 1 && this.y >= y - 1 && this.x <= x + 1 && this.y <= y + 1)
-        {
-            UpdatePositionalSprite();
-        }
-    }
 
-    private void UpdatePositionalSprite()
+    public void UpdatePositionalSprite(int index)
     {
+        if(!hasResources && !isBuilt)
+        {
+            spriteRenderer.sprite = objectData.sprites[index];
+            UpdateSpriteOpacity();
+            return;
+        }
+
         if(hasResources && !isBuilt)
         {
             spriteRenderer.sprite = objectData.constructionSprite;
             return;
         }
-        spriteRenderer.sprite = objectData.sprites[grid.GetGridObject(x, y).GetNeighborIndex()];
+
+        spriteRenderer.sprite = objectData.sprites[index];
     }
 
     private void UpdateSpriteOpacity()
@@ -75,26 +44,17 @@ public class PlacedObject : MonoBehaviour
             spriteRenderer.color = new Color(0.2f, 0.7f, 1f, 0.7f);
     }
 
-    public void Initialize(Grid<GridNode> grid, PlacedObjectScriptableObject SO, int x, int y, out bool isBuilt)
+    public Vector3 GetPosition()
     {
-        this.x = x;
-        this.y = y;
-        this.grid = grid;
-        GridEventManager.OnGridObjectChanged += Grid_OnGridValueChanged;
+        return new Vector3(nodes[0].x, nodes[0].y, 0);
+    }
+    
+    public void Initialize(List<GridNode> nodes, PlacedObjectScriptableObject SO, int x, int y)
+    {
+        this.nodes = nodes;
         objectData = SO;
         spriteRenderer.sortingOrder = -y;
-        isBuilt = AssessPreBuiltStatus();
-        UpdatePositionalSprite(); 
+        spriteRenderer.sprite = objectData.sprites[0];
         UpdateSpriteOpacity();
-    }
-
-    public void UpdateResource(ResourceScriptableObject resource, int count)
-    {
-        ResourceCost curResource = resourceCosts.Find(r => r.resource == resource);
-        curResource.investedCount += count;
-        if(curResource.investedCount >= curResource.neededCount)
-        {
-            AssessResourceStatus();
-        }        
     }
 }

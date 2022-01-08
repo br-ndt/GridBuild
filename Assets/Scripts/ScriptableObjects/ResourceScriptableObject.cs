@@ -7,4 +7,5 @@ public class ResourceScriptableObject : ScriptableObject
 {
     public string resourceName;
     public Sprite sprite;
+    public int maxCount;
 }

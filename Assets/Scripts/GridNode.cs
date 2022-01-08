@@ -28,7 +28,7 @@ public class GridNode
     private Transform groundTransform;
     private Transform placedTransform;
     private Transform ceilingTransform;
-    public List<GridNode> neighbors;
+    public List<GridNode> neighbors { get; private set; }
     public GridNode prevNode;
     #endregion
 
@@ -39,8 +39,39 @@ public class GridNode
         this.x = x;
         this.y = y;
         isWalkable = true;
+        neighbors = new List<GridNode>();
     }
     #endregion
+
+    public bool GetNeighborList()
+    {
+        neighbors.Clear();
+        if(x - 1 >= 0)
+        {
+            //LEFT
+            neighbors.Add(grid.GetGridObject(x - 1, y));
+            //LEFTDOWN
+            if(y - 1 >= 0) neighbors.Add(grid.GetGridObject(x - 1, y - 1));
+            //LEFTUP
+            if(y + 1 < grid.GetHeight()) neighbors.Add(grid.GetGridObject(x - 1, y + 1));
+        }
+        if(x + 1 < grid.GetWidth())
+        {
+            //RIGHT
+            neighbors.Add(grid.GetGridObject(x + 1, y));
+            //RIGHTDOWN
+            if(y - 1 >= 0) neighbors.Add(grid.GetGridObject(x + 1, y - 1));
+            //RIGHTUP
+            if(y + 1 < grid.GetHeight()) neighbors.Add(grid.GetGridObject(x + 1, y + 1));
+        }
+        //DOWN
+        if(y - 1 >= 0) neighbors.Add(grid.GetGridObject(x, y - 1));
+        //UP
+        if(y + 1 < grid.GetHeight()) neighbors.Add(grid.GetGridObject(x, y + 1));
+
+        if(neighbors.Count > 0) return true;
+        else return false;
+    }
 
     #region Getters
     public Grid<GridNode> GetGrid()
@@ -95,40 +126,66 @@ public class GridNode
     {
         placedTransform = transform;
         GridEventManager.GridObjectChanged(this, x, y);
+        foreach(GridNode neighbor in neighbors)
+        {
+            Debug.Log("Notifying neighbors of tile " + x + "," + y);
+            neighbor.NeighborUpdate(this);
+        }
     }
 
-    public int GetNeighborIndex()
+    public void NeighborUpdate(GridNode sender)
     {
+        if(neighbors.Contains(sender))
+        {
+            //test
+            if(placedTransform != null)
+            {
+                if(placedTransform.GetComponent<PlacedObject>() != null)
+                {
+                    placedTransform.GetComponent<PlacedObject>().UpdatePositionalSprite(GetNeighborIndex());
+                }
+            }
+        }
+    }
+
+    private int GetNeighborIndex()
+    {
+        if(neighbors.Count == 0)
+            return 0;
+
         bool east = false, west = false, north = false, south = false;
-        
-        GridNode checkNode;
-        checkNode = grid.GetGridObject(x + 1, y);
-        if(checkNode != null)
+
+        foreach(GridNode neighbor in neighbors)
         {
-            if(checkNode.GetTransform() != null)
-            // check for matching "tile" type
-                east = true;
-        }
-        checkNode = grid.GetGridObject(x - 1, y);
-        if(checkNode != null)
-        {
-            if(checkNode.GetTransform() != null)
-            // check for matching "tile" type
-                west = true;
-        }
-        checkNode = grid.GetGridObject(x, y + 1);
-        if(checkNode != null)
-        {
-            if(checkNode.GetTransform() != null)
-            // check for matching "tile" type
-                north = true;
-        }
-        checkNode = grid.GetGridObject(x, y - 1);
-        if(checkNode != null)
-        {
-            if(checkNode.GetTransform() != null)
-            // check for matching "tile" type
-                south = true;
+            if(neighbor.x == x - 1)
+            {
+                if(neighbor.y == y)
+                {
+                    if(neighbor.GetTransform() != null)
+                        west = true;
+                }
+            }
+            if(neighbor.x == x)
+            {
+                if(neighbor.y == y + 1)
+                {
+                    if(neighbor.GetTransform() != null)
+                        north = true;
+                }
+                if(neighbor.y == y - 1)
+                {
+                    if(neighbor.GetTransform() != null)
+                        south = true;
+                }
+            }
+            if(neighbor.x == x + 1)
+            {
+                if(neighbor.y == y)
+                {
+                    if(neighbor.GetTransform() != null)
+                        east = true;
+                }
+            }
         }
     
         if(east)
